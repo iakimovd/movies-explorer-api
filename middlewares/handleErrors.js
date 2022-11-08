@@ -10,7 +10,7 @@ const handleErrors = (err, req, res, next) => {
         ? 'На сервере произошла ошибка'
         : message,
     });
-  next(err);
+  next();
 };
 
 module.exports = handleErrors;

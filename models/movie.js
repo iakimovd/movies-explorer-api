@@ -58,7 +58,7 @@ movieSchema.path('image').validate((val) => {
 }, 'Invalid URL.');
 
 movieSchema.path('trailerLink').validate((val) => {
-  const urlRegex = /(ftp|http|https):\/\/([\da-z.-]+)\.([a-z.]{2,6})([/\w .-]*)*\/?$/;
+  const urlRegex = /^(https?:\/\/)(www\.)?[\w-]+(\.[a-z])+[\w~!@#$%&*()-+=:;\\'",.?/]+#?/i;
   return urlRegex.test(val);
 }, 'Invalid URL.');
 

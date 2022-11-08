@@ -9,12 +9,6 @@ const Conflict = require('../errors/Conflict'); // 409
 
 const { NODE_ENV, JWT_SECRET } = process.env;
 
-module.exports.getUsers = (req, res, next) => {
-  User.find({})
-    .then((users) => res.send(users))
-    .catch((err) => next(err));
-};
-
 module.exports.createUser = (req, res, next) => {
   bcrypt.hash(req.body.password, 10)
     .then((hash) => User.create({
@@ -78,6 +72,8 @@ module.exports.updateUser = (req, res, next) => {
     .catch((err) => {
       if (err.name === 'ValidationError') {
         next(new BadRequest('Переданы некорректные данные'));
+      } if (err.code === 11000) {
+        next(new Conflict('Пользователь с этим email уже существует'));
       } else {
         next(err);
       }
