@@ -6,7 +6,8 @@ const Forbidden = require('../errors/Forbidden'); // 403
 
 // возвращаем все сохранённые текущим  пользователем фильмы
 module.exports.getMovies = (req, res, next) => {
-  Movie.find({})
+  const owner = req.user._id;
+  Movie.find({ owner })
     .then((movies) => res.status(200).send(movies))
     .catch((err) => next(err));
 };

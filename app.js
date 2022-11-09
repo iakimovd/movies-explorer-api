@@ -2,13 +2,16 @@ require('dotenv').config();
 const express = require('express');
 const mongoose = require('mongoose');
 const bodyParser = require('body-parser');
-const { celebrate, Joi, errors } = require('celebrate');
+const helmet = require('helmet');
+const { errors } = require('celebrate');
 // const corsMiddleware = require('./middlewares/cors');
 const cors = require('cors');
-const { login, createUser } = require('./controllers/users');
-const auth = require('./middlewares/auth');
+const limiter = require('./middlewares/limiter');
+const router = require('./routes');
+// const { login, createUser } = require('./controllers/users');
+// const auth = require('./middlewares/auth');
 const handleErrors = require('./middlewares/handleErrors'); // Функция обработки ошибок
-const NotFound = require('./errors/NotFound'); // 400
+// const NotFound = require('./errors/NotFound'); // 400
 const { requestLogger, errorLogger } = require('./middlewares/logger');
 
 const { PORT = 4000, DATABASE_URL = 'mongodb://localhost:27017/moviesdb' } = process.env;
@@ -38,6 +41,9 @@ const app = express();
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: true }));
 
+app.use(helmet());
+app.use(limiter);
+
 mongoose.connect(DATABASE_URL, {
   useNewUrlParser: true,
   useUnifiedTopology: false,
@@ -53,29 +59,31 @@ app.get('/crash-test', () => {
   }, 0);
 });
 
-app.post('/signin', celebrate({
-  body: Joi.object().keys({
-    email: Joi.string().required().email(),
-    password: Joi.string().required(),
-  }),
-}), login);
+app.use(router);
 
-app.post('/signup', celebrate({
-  body: Joi.object().keys({
-    email: Joi.string().required().email(),
-    password: Joi.string().required(),
-    name: Joi.string().min(2).max(30),
-  }),
-}), createUser);
+// app.post('/signin', celebrate({
+//   body: Joi.object().keys({
+//     email: Joi.string().required().email(),
+//     password: Joi.string().required(),
+//   }),
+// }), login);
 
-app.use(auth);
+// app.post('/signup', celebrate({
+//   body: Joi.object().keys({
+//     email: Joi.string().required().email(),
+//     password: Joi.string().required(),
+//     name: Joi.string().required().min(2).max(30),
+//   }),
+// }), createUser);
 
-app.use('/users', require('./routes/users'));
-app.use('/movies', require('./routes/movies'));
+// app.use(auth);
 
-app.use('/*', (req, res, next) => {
-  next(new NotFound('Page not found'));
-});
+// app.use('/users', require('./routes/users'));
+// app.use('/movies', require('./routes/movies'));
+
+// app.use('/*', (req, res, next) => {
+//   next(new NotFound('Page not found'));
+// });
 
 app.use(errorLogger); // подключаем логгер ошибок
 
