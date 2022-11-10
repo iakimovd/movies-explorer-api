@@ -24,14 +24,32 @@ const movieSchema = new mongoose.Schema({
   image: {
     type: String,
     required: true,
+    validate: { // опишем свойство validate
+      validator(v) { // validator - функция проверки данных. v - значение свойства image
+        return /(ftp|http|https):\/\/([\da-z.-]+)\.([a-z.]{2,6})([/\w .-]*)*\/?$/.test(v); // если ссылка невалидна, вернётся false
+      },
+      message: 'Image link validation failed', // когда validator вернёт false, будет использовано это сообщение
+    },
   },
   trailerLink: {
     type: String,
     required: true,
+    validate: { // опишем свойство validate
+      validator(v) { // validator - функция проверки данных. v - значение свойства trailerLink
+        return /^(https?:\/\/)(www\.)?[\w-]+(\.[a-z])+[\w~!@#$%&*()-+=:;\\'",.?/]+#?/i.test(v); // если ссылка невалидна, вернётся false
+      },
+      message: 'Trailer link validation failed', // когда validator вернёт false, будет использовано это сообщение
+    },
   },
   thumbnail: {
     type: String,
     required: true,
+    validate: { // опишем свойство validate
+      validator(v) { // validator - функция проверки данных. v - значение свойства thumbnail
+        return /(ftp|http|https):\/\/([\da-z.-]+)\.([a-z.]{2,6})([/\w .-]*)*\/?$/.test(v); // если ссылка невалидна, вернётся false
+      },
+      message: 'Thumbnail link validation failed', // когда validator вернёт false, будет использовано это сообщение
+    },
   },
   owner: {
     type: mongoose.Schema.Types.ObjectId,
@@ -51,20 +69,5 @@ const movieSchema = new mongoose.Schema({
     required: true,
   },
 });
-
-movieSchema.path('image').validate((val) => {
-  const urlRegex = /(ftp|http|https):\/\/([\da-z.-]+)\.([a-z.]{2,6})([/\w .-]*)*\/?$/;
-  return urlRegex.test(val);
-}, 'Invalid URL.');
-
-movieSchema.path('trailerLink').validate((val) => {
-  const urlRegex = /^(https?:\/\/)(www\.)?[\w-]+(\.[a-z])+[\w~!@#$%&*()-+=:;\\'",.?/]+#?/i;
-  return urlRegex.test(val);
-}, 'Invalid URL.');
-
-movieSchema.path('thumbnail').validate((val) => {
-  const urlRegex = /(ftp|http|https):\/\/([\da-z.-]+)\.([a-z.]{2,6})([/\w .-]*)*\/?$/;
-  return urlRegex.test(val);
-}, 'Invalid URL.');
 
 module.exports = mongoose.model('movie', movieSchema);
